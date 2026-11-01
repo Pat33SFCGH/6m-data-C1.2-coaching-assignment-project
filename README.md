@@ -1,3 +1,8 @@
+# Instructions
+
+Download the CSV from this Google Drive link: https://drive.google.com/drive/folders/1kepV0Cc55wit7ozcLiC7ze8A6zRdQQF8
+In your VSCode, load the data into your data folder
+
 # Module 1 Assignment Project – Singapore Jobs Analytics
 
 Design a simple data product (dashboard or web app) using a real-world CSV of Singapore job postings (~1M+ rows). Your goal is to solve a clear business problem for a specific user group using insights from the data.
