@@ -216,7 +216,7 @@ fig_position_experience = px.bar(
     y="count",
     color="minimumYearsExperience",  # Colors bars by minimum years of experience
     barmode="group",
-    labels={"positionLevels": "Position", "count": "Number of Position", "minimumYearsExperience": "Years of Minimum Experience"},
+    labels={"positionLevels": "Position", "count": "Number of Min. Year Exp.", "minimumYearsExperience": "Years of Minimum Experience"},
 )
 
 # --- 3.5: Enforce the total-based sorting order onto the X-axis ---
