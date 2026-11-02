@@ -167,7 +167,7 @@ fig_category_position = px.bar(
     y="count",
     color="positionLevels",  # Colors bars by position level (e.g., Senior Management)
     barmode="group",
-    labels={"clean_category": "Category", "count": "Number of Positions", "positionLevels": "Position Level"},
+    labels={"clean_category": "Category", "count": "Position Counts", "positionLevels": "Position Level"},
 )
 
 # --- 3.5: FORCE PLOTLY TO RESPECT THE TOTALS SORT ORDER ---
@@ -216,7 +216,7 @@ fig_position_experience = px.bar(
     y="count",
     color="minimumYearsExperience",  # Colors bars by minimum years of experience
     barmode="group",
-    labels={"positionLevels": "Position", "count": "Number of Min. Year Exp.", "minimumYearsExperience": "Years of Minimum Experience"},
+    labels={"positionLevels": "Position", "count": "Min. of Year Exp. Counts", "minimumYearsExperience": "Years of Minimum Experience"},
 )
 
 # --- 3.5: Enforce the total-based sorting order onto the X-axis ---
