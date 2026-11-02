@@ -1,0 +1,12 @@
+# Using VS Code
+# Step 1: Run environment via Terminal
+conda env create -f environment
+
+# Step 2: Activate environment via Terminal
+conda activate DSAI_JSA
+
+# Step 3: Before running dashboard_jsa.py via 
+update the DATA_PATH in the dashboard_jsa.py to the file path where the data csv is located
+
+# Step 4: Run Streamlit to view the Singapore Jobs Analytics dashboard via Terminal
+streamlit run dashboard_jsa.py
