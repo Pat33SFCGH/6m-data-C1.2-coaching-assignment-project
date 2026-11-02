@@ -15,7 +15,7 @@ def load_data(path):
     return pd.read_csv(path, nrows=5000)
 
 # Kindly change to the corect csv file path
-DATA_PATH = "/home/patss/DSAIModule_GA1/6m-data-C1.2-coaching-assignment-project/SJA/data/SGJobData.csv"
+DATA_PATH = "./SGJobData.csv"
 df = load_data(DATA_PATH)
 
 st.header("Key Metrics")
