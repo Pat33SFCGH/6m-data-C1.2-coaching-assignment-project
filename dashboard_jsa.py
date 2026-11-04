@@ -116,6 +116,25 @@ try:
     top_category = category_list[0]["category"]
 except (IndexError, json.JSONDecodeError, KeyError):
     top_category = "No Data"
+
+# --- ADD THIS CSS SNIPPET BEFORE GENERATING YOUR METRICS ---
+st.markdown(
+    """
+    <style>
+    /* Targets the metric value (the main text/number) */
+    [data-testid="stMetricValue"] {
+        font-size: 24px !important; /* Adjust this value down to shrink the size */
+    }
+    
+    /* Targets the metric label (the small text above the value) */
+    [data-testid="stMetricLabel"] {
+        font-size: 14px !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 col1.metric("Top Category", top_category)
 col2.metric("Top Position", metrics_df["positionLevels"].value_counts().index[0])
 col3.metric("Total Available Job Application", f"{metrics_df[metrics_df['status_jobStatus'].isin(['Open', 'Re-open'])]['metadata_totalNumberJobApplication'].sum():,.0f}")
