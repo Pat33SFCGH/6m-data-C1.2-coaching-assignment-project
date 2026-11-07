@@ -14,7 +14,7 @@ if "clicked_path" not in st.session_state:
 # =====================================================================
 @st.cache_data
 def load_data(path):
-    return pd.read_csv(path, nrows=20000)
+    return pd.read_csv(path, nrows=50000)
 
 def format_category_row_unified(val):
     names = parse_malformed_json(val)
@@ -101,6 +101,30 @@ df_filtered = df_filtered[(df_filtered["salary_minimum"] >= salary_range[0]) & (
 # 4. MAIN INTERFACE AND STATE CONTROL
 # =====================================================================
 st.title("SG Job Analytics Dashboard")
+
+col1, col2, col3, col4 = st.columns(4)
+# --- ADD THIS CSS SNIPPET BEFORE GENERATING YOUR METRICS ---
+st.markdown(
+    """
+    <style>
+    /* Targets the metric value (the main text/number) */
+    [data-testid="stMetricValue"] {
+        font-size: 24px !important; /* Adjust this value down to shrink the size */
+    }
+    
+    /* Targets the metric label (the small text above the value) */
+    [data-testid="stMetricLabel"] {
+        font-size: 14px !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+col1.metric("Top Category", df_filtered["categories"].value_counts().index[0])
+col2.metric("Top Position", df_filtered["positionLevels"].value_counts().index[0])
+col3.metric("Total Available Job Application", f"{df_filtered[df_filtered['status_jobStatus'].isin(['Open', 'Re-open'])]['metadata_totalNumberJobApplication'].sum():,.0f}")
+col4.metric("Average Min. Salary - Max. Salary / Average Salary", f"${df_filtered['salary_minimum'].mean():,.0f} - ${df_filtered['salary_maximum'].mean():,.0f} / ${df_filtered['average_salary'].mean():,.0f}")
 
 # Dynamic active filters trail
 active_path = st.session_state.clicked_path
