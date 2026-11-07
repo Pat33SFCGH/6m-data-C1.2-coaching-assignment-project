@@ -14,7 +14,7 @@ if "clicked_path" not in st.session_state:
 # =====================================================================
 @st.cache_data
 def load_data(path):
-    return pd.read_csv(path, nrows=50000)
+    return pd.read_csv(path)
 
 def format_category_row_unified(val):
     names = parse_malformed_json(val)
@@ -102,7 +102,8 @@ df_filtered = df_filtered[(df_filtered["salary_minimum"] >= salary_range[0]) & (
 # =====================================================================
 st.title("SG Job Analytics Dashboard")
 
-col1, col2, col3, col4 = st.columns(4)
+col1, col2 = st.columns(2)
+row1, row2 = st.columns(2)
 # --- ADD THIS CSS SNIPPET BEFORE GENERATING YOUR METRICS ---
 st.markdown(
     """
@@ -123,8 +124,95 @@ st.markdown(
 
 col1.metric("Top Category", df_filtered["categories"].value_counts().index[0])
 col2.metric("Top Position", df_filtered["positionLevels"].value_counts().index[0])
-col3.metric("Total Available Job Application", f"{df_filtered[df_filtered['status_jobStatus'].isin(['Open', 'Re-open'])]['metadata_totalNumberJobApplication'].sum():,.0f}")
-col4.metric("Average Min. Salary - Max. Salary / Average Salary", f"${df_filtered['salary_minimum'].mean():,.0f} - ${df_filtered['salary_maximum'].mean():,.0f} / ${df_filtered['average_salary'].mean():,.0f}")
+row1.metric("Total Available Job Application", f"{df_filtered[df_filtered['status_jobStatus'].isin(['Open', 'Re-open'])]['metadata_totalNumberJobApplication'].sum():,.0f}")
+row2.metric("Average Min. Salary - Max. Salary / Average Salary", f"${df_filtered['salary_minimum'].mean():,.0f} - ${df_filtered['salary_maximum'].mean():,.0f} / ${df_filtered['average_salary'].mean():,.0f}")
+
+
+# Chart Main Content - Start
+# 1. Create the Pie Chart using Plotly Express
+filtered_df = df.copy()
+st.subheader("Category Breakdown (Grouped)")
+if "categories" in df.columns:
+    # Extract the nested items out into lists
+    # Replace 'category_column' and 'value_column' with your actual CSV headers
+    #df["clean_list"] = df["categories"].apply(parse_malformed_json)
+    # Explode the lists so each category gets its own independent row row
+    #exploded_df = df.explode("clean_list").dropna(subset=["clean_list"])
+    #filtered_df["combined_string"] = filtered_df["categories"].apply(format_category_row_unified)
+
+    # --- COUNT AND AGGREGATE ---
+    category_counts = (
+        #exploded_df["clean_list"].value_counts().reset_index()
+        filtered_df["categories"].value_counts().reset_index()
+    )
+    category_counts.columns = ["category", "count"]
+
+    # Filter out tiny values < 1% to get rid of the overlapping gray lines in your chart
+    total_count = category_counts["count"].sum()
+    threshold = total_count * 0.01
+
+    main_categories = category_counts[category_counts["count"] >= threshold]
+    other_categories = category_counts[category_counts["count"] < threshold]
+    hidden_categories = set(other_categories["category"].tolist())
+
+    if not other_categories.empty:
+        others_row = pd.DataFrame(
+            [{"category": "Others", "count": other_categories["count"].sum()}]
+        )
+        category_counts = pd.concat(
+            [main_categories, others_row], ignore_index=True
+        )
+    else:
+        category_counts = main_categories
+
+    # --- RENDER NEW PIE CHART ---
+    fig_pie_category = px.pie(
+        category_counts,
+        names="category",  # Legend will strictly display cleanly now!
+        values="count",
+        #title="Category Breakdown (Grouped)",
+    )
+
+    # Added 4-Nov-2026
+    # --- DYNAMIC SELECTION HIGHLIGHTING ---
+    pull_values = []
+    border_colors = []
+    border_widths = []
+    for cat in category_counts["category"]:
+        if cat == "Others":
+            # 2. Check if ANY of the user's selected items are hidden inside "Others"
+            # --- Selected Category from Filtering Criteria ---
+            if selected_category and any(selected_item in hidden_categories for selected_item in selected_category):
+                pull_values.append(0.05)  # Pull out the "Others" slice!
+                border_colors.append('#000000')
+                border_widths.append(1)
+            else:
+                pull_values.append(0.0)
+                border_colors.append('rgba(0,0,0,0)')  # Transparent
+                border_widths.append(0)
+        else:
+            # Standard matching for main categories
+            if selected_category and cat in selected_category:
+                pull_values.append(0.05)
+                border_colors.append('#000000')
+                border_widths.append(1)
+            else:
+                pull_values.append(0.0)
+                border_colors.append('rgba(0,0,0,0)')  # Transparent
+                border_widths.append(0)
+
+    fig_pie_category.update_traces(pull=pull_values, marker=dict(
+            line=dict(
+                color=border_colors,  # Maps individual border color to each slice
+                width=border_widths   # Maps individual border width to each slice
+            )
+        ))
+    # Ended on 4-Nov-2026
+
+    st.plotly_chart(fig_pie_category, use_container_width=True)
+else:
+    st.error("Could not find the 'categories' column.")
+
 
 # Dynamic active filters trail
 active_path = st.session_state.clicked_path
